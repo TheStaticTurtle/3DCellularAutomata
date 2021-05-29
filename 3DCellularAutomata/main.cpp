@@ -14,52 +14,57 @@
 
 #include "Cube.h"
 #include "Pyramid.h"
+#include "CA3D.h"
 
-const unsigned int width = 800;
-const unsigned int height = 800;
+unsigned int width = 720;
+unsigned int height = 480;
 
+Camera *camera = NULL;
+
+void framebuffer_size_callback(GLFWwindow* window, int _width, int _height) {
+	width = _width;
+	height = _height;
+	glViewport(0, 0, _width, _height);
+	if (camera != NULL) {
+		camera->updateSize(_width, _height);
+	}
+}
 
 int main() {
-	// Initialize GLFW
+	std::cout << "Hello world" << std::endl;
+	CA3D::CA3D playground(50, 50);
+	playground.initRule("4/4/5/M");
+
+	while (true) {}
+
 	glfwInit();
 
-	//Select the proper OpenGL Version
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	//Create a window
 	GLFWwindow* window = glfwCreateWindow(width, height, "3D Cellular automata", NULL, NULL);
-	//Exit if an error occurs
 	if (window == NULL) {
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
-	//Set the windows to the current context (use the window)
+
 	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	gladLoadGL();
-	glViewport(0, 0, height, width);
-
-
-	// Generates Shader object using shaders defualt.vert and default.frag
-	Shader shaderProgram("default.vert", "default.frag");
-
-
-	glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::mat4 objectModel = glm::mat4(1.0f);
-	objectModel = glm::translate(objectModel, objectPos);
-
-	shaderProgram.activate();
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(objectModel));
-
-
-	// Enables the Depth Buffer
+	glViewport(0, 0, width, height);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_DEPTH_TEST);
+
+	Shader shaderProgram("default.vert", "default.frag");
+	shaderProgram.activate();
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+
 
 	double prevTime = glfwGetTime();
 	float rotation = 0.0f;
-	Camera camera(width, height, glm::vec3(0.0f, 2.0f, 8.0f));
+	camera = new Camera(width, height, glm::vec3(0.0f, 2.0f, 8.0f));
 
 	Cube c(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	Pyramid p(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -74,22 +79,14 @@ int main() {
 			rotation += 0.01f;
 		};
 
-		// Handles camera inputs
-		camera.inputs(window);
-		// Updates and exports the camera matrix to the Vertex Shader
-		camera.updateMatrix(45.0f, 0.1f, 100.0f, rotation);
+		camera->inputs(window);
+		camera->updateMatrix(45.0f, 0.1f, 100.0f, rotation);
 
-		c.draw(shaderProgram, camera);
-		p.draw(shaderProgram, camera);
-		//triangle1.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(-0.5f, 0.0f, -0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		//triangle2.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, -0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		//triangle3.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(-0.5f, 0.0f, 0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		//triangle4.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
+		c.draw(shaderProgram, *camera);
+		p.draw(shaderProgram, *camera);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents(); // Check for events (Like close window)
-
 	}
 
 	// Delete all the objects we've created

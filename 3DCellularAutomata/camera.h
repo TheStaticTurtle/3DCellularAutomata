@@ -42,6 +42,8 @@ public:
 	void matrix(Shader& shader, const char* uniform);
 	// Handles camera inputs
 	void inputs(GLFWwindow* window);
+
+	void updateSize(int width, int height);
 };
 
 

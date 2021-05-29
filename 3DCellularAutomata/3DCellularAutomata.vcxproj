@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BaseShape.cpp" />
+    <ClCompile Include="CA3D.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="EBO.cpp" />
@@ -162,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseShape.h" />
+    <ClInclude Include="CA3D.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="EBO.h" />

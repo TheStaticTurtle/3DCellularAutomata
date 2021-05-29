@@ -28,6 +28,12 @@
     <Filter Include="Header Files\Shapes">
       <UniqueIdentifier>{60565396-228d-4416-9a0b-05745bbe0a09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\3DCellularAutomata">
+      <UniqueIdentifier>{58362dfe-5636-4db4-bc68-44143a108d0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\3DCellularAutomata">
+      <UniqueIdentifier>{efda726b-5495-4452-9026-8aaa1d9dc2d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -62,6 +68,9 @@
     </ClCompile>
     <ClCompile Include="Pyramid.cpp">
       <Filter>Source Files\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="CA3D.cpp">
+      <Filter>Source Files\3DCellularAutomata</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +108,9 @@
     </ClInclude>
     <ClInclude Include="Pyramid.h">
       <Filter>Header Files\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="CA3D.h">
+      <Filter>Header Files\3DCellularAutomata</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

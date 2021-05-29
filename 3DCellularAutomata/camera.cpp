@@ -95,3 +95,9 @@ void Camera::inputs(GLFWwindow* window)
 		firstClick = true;
 	}
 }
+
+void Camera::updateSize(int width, int height)
+{
+	this->width = width;
+	this->height = height;
+}
