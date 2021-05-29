@@ -1,6 +1,8 @@
 #include "BaseShape.h"
 
 BaseShape::BaseShape() {
+	this->vertices = new std::vector <Vertex>();
+	this->indices = new std::vector <GLuint>();
 	this->calculateMesh();
 }
 

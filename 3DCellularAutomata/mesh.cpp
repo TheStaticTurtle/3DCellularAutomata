@@ -1,22 +1,22 @@
 #include "mesh.h"
 
-Mesh::Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices)
+Mesh::Mesh(std::vector <Vertex>* vertices, std::vector <GLuint>* indices)
 {
 	this->vertices = vertices;
 	this->indices = indices;
 
 	VAO.bind();
 	// Generates Vertex Buffer Object and links it to vertices
-	VBO VBO(this->vertices);
+	this->vbo = new VBO(*this->vertices);
 	// Generates Element Buffer Object and links it to indices
-	EBO EBO(this->indices);
+	this->ebo = new EBO(*this->indices);
 	// Links VBO attributes such as coordinates and colors to VAO
-	VAO.linkAttrib(VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
-	VAO.linkAttrib(VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
+	VAO.linkAttrib(*this->vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
+	VAO.linkAttrib(*this->vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
 	// unbind all to prevent accidentally modifying them
 	VAO.unbind();
-	VBO.unbind();
-	EBO.unbind();
+	this->vbo->unbind();
+	this->ebo->unbind();
 }
 
 
@@ -47,5 +47,10 @@ void Mesh::draw(Shader& shader, Camera& camera, glm::mat4 matrix, glm::vec3 tran
 
 
 	// Draw the actual mesh
-	glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, this->indices->size(), GL_UNSIGNED_INT, 0);
+}
+
+void Mesh::update() {
+	this->vbo->updateData(this->vertices);
+	this->ebo->updateData(this->indices);
 }

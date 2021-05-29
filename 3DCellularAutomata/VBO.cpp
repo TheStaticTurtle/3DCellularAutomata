@@ -14,6 +14,12 @@ void VBO::bind()
 	glBindBuffer(GL_ARRAY_BUFFER, ID);
 }
 
+void VBO::updateData(std::vector<Vertex>* vertices) {
+	//glBindBuffer(GL_ARRAY_BUFFER, ID);
+	glBufferData(GL_ARRAY_BUFFER, vertices->size() * sizeof(Vertex), vertices->data(), GL_DYNAMIC_DRAW);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 // Unbinds the VBO
 void VBO::unbind()
 {

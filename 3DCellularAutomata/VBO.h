@@ -23,6 +23,8 @@ public:
 	VBO(std::vector<Vertex>& vertices);
 
 	// Binds the VBO
+	void updateData(std::vector<Vertex>* vertices);
+	// Binds the VBO
 	void bind();
 	// Unbinds the VBO
 	void unbind();

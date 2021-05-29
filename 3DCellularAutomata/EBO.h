@@ -12,6 +12,8 @@ public:
 	// Constructor that generates a Elements Buffer Object and links it to indices
 	EBO(std::vector<GLuint>& indices);
 
+	// Binds the VBO
+	void updateData(std::vector<GLuint>* indices);
 	// Binds the EBO
 	void bind();
 	// Unbinds the EBO

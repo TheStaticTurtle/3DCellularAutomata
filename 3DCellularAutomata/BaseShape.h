@@ -13,8 +13,8 @@ public:
 	void draw(Shader &shader, Camera &camera);
 
 protected:
-	std::vector <Vertex> vertices;
-	std::vector <GLuint> indices;
+	std::vector <Vertex>* vertices;
+	std::vector <GLuint>* indices;
 	Mesh* mesh;
 };
 

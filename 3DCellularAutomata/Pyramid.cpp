@@ -1,20 +1,24 @@
 #include "Pyramid.h"
 
 Pyramid::Pyramid(glm::vec3 center, glm::vec3 size) {
+	this->vertices = new std::vector <Vertex>();
+	this->indices = new std::vector <GLuint>();
 
-	float x = center.x + size.x / 2;
+	float px = center.x + size.x / 2;
+	float nx = center.x - size.x / 2;
 	float py = center.y + size.y / 2;
 	float ny = center.y - size.y / 2;
-	float z = center.z + size.z / 2;
+	float pz = center.z + size.z / 2;
+	float nz = center.z - size.z / 2;
 
 
 	Vertex vertices[] = { //               COORDINATES           /            COLORS       
-		Vertex{glm::vec3(0.0f, py,  0.0f),  glm::vec3(1.0f, 1.0f, 1.0f)},
+		Vertex{glm::vec3(center.x, py,  center.z),  glm::vec3(1.0f, 1.0f, 1.0f)},
 
-		Vertex{glm::vec3(-x, ny,  z), glm::vec3(1.0f, 0.0f, 0.0f)},
-		Vertex{glm::vec3(-x, ny, -z), glm::vec3(1.0f, 1.0f, 0.0f)},
-		Vertex{glm::vec3(x, ny, -z),  glm::vec3(0.0f, 1.0f, 0.0f)},
-		Vertex{glm::vec3(x, ny,  z),  glm::vec3(0.0f, 0.0f, 1.0f)},
+		Vertex{glm::vec3(nx, ny, pz), glm::vec3(1.0f, 0.0f, 0.0f)},
+		Vertex{glm::vec3(nx, ny, nz), glm::vec3(1.0f, 1.0f, 0.0f)},
+		Vertex{glm::vec3(px, ny, nz), glm::vec3(0.0f, 1.0f, 0.0f)},
+		Vertex{glm::vec3(px, ny, pz), glm::vec3(0.0f, 0.0f, 1.0f)},
 	};
 
 	// Indices for vertices order
@@ -31,8 +35,8 @@ Pyramid::Pyramid(glm::vec3 center, glm::vec3 size) {
 
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
 	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
-	this->vertices = verts;
-	this->indices = ind;
+	this->vertices = &verts;
+	this->indices = &ind;
 
 	this->calculateMesh();
 }

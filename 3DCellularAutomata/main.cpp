@@ -32,10 +32,6 @@ void framebuffer_size_callback(GLFWwindow* window, int _width, int _height) {
 
 int main() {
 	std::cout << "Hello world" << std::endl;
-	CA3D::CA3D playground(50, 50);
-	playground.initRule("4/4/5/M");
-
-	while (true) {}
 
 	glfwInit();
 
@@ -54,20 +50,23 @@ int main() {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	gladLoadGL();
 	glViewport(0, 0, width, height);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  //Uncomment for wireframe mode
 	glEnable(GL_DEPTH_TEST);
 
 	Shader shaderProgram("default.vert", "default.frag");
 	shaderProgram.activate();
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
 
-
 	double prevTime = glfwGetTime();
+	double prevTime2 = glfwGetTime();
 	float rotation = 0.0f;
 	camera = new Camera(width, height, glm::vec3(0.0f, 2.0f, 8.0f));
 
-	Cube c(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	Pyramid p(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+
+	CA3D::CA3D playground(20, 20, 20);
+	playground.initRule("4/4/5/M");
+	playground.resetMap(CA3D_INIT_MODE_FULL);
+
 
 	while (!glfwWindowShouldClose(window))	{
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
@@ -76,22 +75,25 @@ int main() {
 		double crntTime = glfwGetTime();
 		if (crntTime - prevTime >= 1 / 60) {
 			prevTime = crntTime;
-			rotation += 0.01f;
+			rotation += 0.20f;
+		};
+
+		if (crntTime - prevTime2 >= 1) {
+			prevTime2 = crntTime;
+			playground.magic();
 		};
 
 		camera->inputs(window);
 		camera->updateMatrix(45.0f, 0.1f, 100.0f, rotation);
 
-		c.draw(shaderProgram, *camera);
-		p.draw(shaderProgram, *camera);
+		playground.draw(shaderProgram, *camera);
 
 		glfwSwapBuffers(window);
-		glfwPollEvents(); // Check for events (Like close window)
+		glfwPollEvents();
 	}
 
-	// Delete all the objects we've created
+
 	shaderProgram._delete();
-	//Destroy everything and quit
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	return 0;
