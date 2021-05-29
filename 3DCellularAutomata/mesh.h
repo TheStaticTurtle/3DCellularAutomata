@@ -21,8 +21,6 @@ public:
 	Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices);
 
 	// Draws the mesh
-	void Draw(Shader& shader, Camera& camera, glm::mat4 matrix, glm::vec3 translation, glm::quat rotation, glm::vec3 scale);
-
-	void translate(glm::vec3 direction);
+	void draw(Shader& shader, Camera& camera, glm::mat4 matrix, glm::vec3 translation, glm::quat rotation, glm::vec3 scale);
 };
 #endif

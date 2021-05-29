@@ -13,11 +13,11 @@ public:
 	EBO(std::vector<GLuint>& indices);
 
 	// Binds the EBO
-	void Bind();
+	void bind();
 	// Unbinds the EBO
-	void Unbind();
+	void unbind();
 	// Deletes the EBO
-	void Delete();
+	void _delete();
 };
 
 #endif
