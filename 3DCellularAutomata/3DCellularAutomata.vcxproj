@@ -144,11 +144,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseShape.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="Cube.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="Pyramid.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
@@ -158,9 +161,12 @@
     <None Include="default.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseShape.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="Cube.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="Pyramid.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />

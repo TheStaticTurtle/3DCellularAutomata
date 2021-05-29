@@ -12,90 +12,11 @@
 #include "camera.h"
 #include "mesh.h"
 
+#include "Cube.h"
+#include "Pyramid.h"
+
 const unsigned int width = 800;
 const unsigned int height = 800;
-/*
-// Vertices coordinates
-GLfloat vertices[] =
-{ //     COORDINATES     /        COLORS      //
-	-0.5f,  0.5f, -0.5f,     1.0f, 0.0f, 0.0f, // Lower left corner
-	 0.5f,  0.5f, -0.5f,     0.0f, 1.0f, 0.0f, // Upper left corner
-	-0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 1.0f, // Upper left corner
-	 0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 1.0f, // Upper left corner
-
-	-0.5f, -0.5f, -0.5f,    1.0f, 1.0f, 0.0f, // Lower left corner
-	 0.5f, -0.5f, -0.5f,    1.0f, 0.0f, 1.0f, // Upper left corner
-	-0.5f, -0.5f,  0.5f,    0.5f, 0.5f, 0.5f, // Upper left corner
-	 0.5f, -0.5f,  0.5f,    1.0f, 1.0f, 1.0f, // Upper left corner
-};
-
-// Indices for vertices order
-GLuint indices[] =
-{
-	//Top face
-	0,1,3,  1,3,2,
-
-	//bottomface
-	4,5,7,  4,6,7,
-
-	//front face
-	2,3,7,  2,6,7,
-
-	//rear face
-	0,1,5,  0,4,5,
-
-	//left face
-	0,5,6,  0,2,6,
-
-	//right face
-	1,5,7,  1,3,7
-};*/
-
-
-// Vertices coordinates
-Vertex vertices[] =
-{ //               COORDINATES           /            COLORS          
-	Vertex{glm::vec3(-0.5f, 0.0f,  0.5f), glm::vec3(1.0f, 0.0f, 0.0f)},
-	Vertex{glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(1.0f, 1.0f, 0.0f)},
-	Vertex{glm::vec3(0.5f, 0.0f, -0.5f),  glm::vec3(0.0f, 1.0f, 0.0f)},
-	Vertex{glm::vec3(0.5f, 0.0f,  0.5f),  glm::vec3(0.0f, 0.0f, 1.0f)},
-	Vertex{glm::vec3(0.0f, 0.8f,  0.0f),  glm::vec3(1.0f, 1.0f, 1.0f)},
-};
-
-// Indices for vertices order
-GLuint indices[] =
-{
-	0, 1, 2,
-	0, 2, 3,
-	0, 1, 4,
-	1, 2, 4,
-	2, 3, 4,
-	3, 0, 4
-};
-
-
-
-/*
-// Vertices coordinates
-GLfloat vertices[] =
-{ //     COORDINATES     /        COLORS       //
-	-0.5f, 0.0f,  0.5f,     1.00f, 0.00f, 0.00f,
-	-0.5f, 0.0f, -0.5f,     0.00f, 1.00f, 0.00f,
-	 0.5f, 0.0f, -0.5f,     0.00f, 0.00f, 1.00f,
-	 0.5f, 0.0f,  0.5f,     1.00f, 1.00f, 0.00f,
-	 0.0f, 0.8f,  0.0f,     1.00f, 1.00f, 1.0f,
-};
-
-// Indices for vertices order
-GLuint indices[] =
-{
-	0, 1, 2,
-	0, 2, 3,
-	0, 1, 4,
-	1, 2, 4,
-	2, 3, 4,
-	3, 0, 4
-};*/
 
 
 int main() {
@@ -125,26 +46,6 @@ int main() {
 	Shader shaderProgram("default.vert", "default.frag");
 
 
-	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
-	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
-	// Create floor mesh
-	Mesh triangle1(verts, ind);
-
-	std::vector <Vertex> verts2(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
-	std::vector <GLuint> ind2(indices, indices + sizeof(indices) / sizeof(GLuint));
-	// Create floor mesh
-	Mesh triangle2(verts2, ind2);
-
-	std::vector <Vertex> verts3(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
-	std::vector <GLuint> ind3(indices, indices + sizeof(indices) / sizeof(GLuint));
-	// Create floor mesh
-	Mesh triangle3(verts3, ind3);
-
-	std::vector <Vertex> verts4(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
-	std::vector <GLuint> ind4(indices, indices + sizeof(indices) / sizeof(GLuint));
-	// Create floor mesh
-	Mesh triangle4(verts4, ind4);
-
 	glm::vec3 objectPos = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::mat4 objectModel = glm::mat4(1.0f);
 	objectModel = glm::translate(objectModel, objectPos);
@@ -159,6 +60,9 @@ int main() {
 	double prevTime = glfwGetTime();
 	float rotation = 0.0f;
 	Camera camera(width, height, glm::vec3(0.0f, 2.0f, 8.0f));
+
+	Cube c(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+	Pyramid p(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 	while (!glfwWindowShouldClose(window))	{
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
@@ -175,10 +79,12 @@ int main() {
 		// Updates and exports the camera matrix to the Vertex Shader
 		camera.updateMatrix(45.0f, 0.1f, 100.0f, rotation);
 
-		triangle1.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(-0.5f, 0.0f, -0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		triangle2.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, -0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		triangle3.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(-0.5f, 0.0f, 0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-		triangle4.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		c.draw(shaderProgram, camera);
+		p.draw(shaderProgram, camera);
+		//triangle1.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(-0.5f, 0.0f, -0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		//triangle2.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, -0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		//triangle3.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(-0.5f, 0.0f, 0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+		//triangle4.draw(shaderProgram, camera, glm::mat4(1.0f), glm::vec3(0.5f, 0.0f, 0.5f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 
 		glfwSwapBuffers(window);

@@ -22,6 +22,12 @@
     <Filter Include="Source Files\3D">
       <UniqueIdentifier>{d71ab9d8-1654-4798-9cf4-f3909ac9f835}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Shapes">
+      <UniqueIdentifier>{59145bc8-276c-488e-a89c-901b28d58a77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shapes">
+      <UniqueIdentifier>{60565396-228d-4416-9a0b-05745bbe0a09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -47,6 +53,15 @@
     </ClCompile>
     <ClCompile Include="glad.c">
       <Filter>Source Files\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>Source Files\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseShape.cpp">
+      <Filter>Source Files\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="Pyramid.cpp">
+      <Filter>Source Files\Shapes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -75,6 +90,15 @@
     </ClInclude>
     <ClInclude Include="VBO.h">
       <Filter>Header Files\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>Header Files\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseShape.h">
+      <Filter>Header Files\Shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="Pyramid.h">
+      <Filter>Header Files\Shapes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
