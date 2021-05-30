@@ -41,6 +41,40 @@ namespace CA3D {
         return output;
     }
 
+    void addCube(std::vector <Vertex>* vertices, std::vector <GLuint>* indices,int vertex_index, glm::vec3 center, glm::vec3 size, glm::vec3 color) {
+        float px, nx, py, ny, pz, nz;
+
+        unsigned int cube_vertexes[] = {
+            0, 1, 3,   0, 2, 3, //Top     face
+            4, 6, 7,   4, 5, 7, //Bottom  face
+            0, 1, 5,   0, 4, 5, //Rear    face
+            2, 3, 7,   2, 6, 7, //Front   face
+            1, 5, 7,   1, 3, 7, //Left    face
+            0, 2, 6,   0, 4, 6, //Right   face
+        };
+
+        px = center.x + size.x / 2;
+        nx = center.x - size.x / 2;
+        py = center.y + size.y / 2;
+        ny = center.y - size.y / 2;
+        pz = center.z + size.z / 2;
+        nz = center.z - size.z / 2;
+
+        vertices->push_back(Vertex{ glm::vec3(nx,  py, nz), color });
+        vertices->push_back(Vertex{ glm::vec3(px,  py, nz), color });
+        vertices->push_back(Vertex{ glm::vec3(nx,  py, pz), color });
+        vertices->push_back(Vertex{ glm::vec3(px,  py, pz), color });
+
+        vertices->push_back(Vertex{ glm::vec3(nx, ny, nz), color });
+        vertices->push_back(Vertex{ glm::vec3(px, ny, nz), color });
+        vertices->push_back(Vertex{ glm::vec3(nx, ny, pz), color });
+        vertices->push_back(Vertex{ glm::vec3(px, ny, pz), color });
+
+        for (const int i : cube_vertexes) {
+            indices->push_back(i + vertex_index);
+        }
+    }
+
     /* ----  Init  -----*/
 	CA3D::CA3D(unsigned int size_x, const unsigned int size_y, const unsigned int size_z) {
         this->size_x = size_x;
@@ -149,14 +183,15 @@ namespace CA3D {
         };
 
         unsigned int vertex_index = 0;
+        glm::vec3 colorCube(0.5f, 0.5f, 0.5f);
 
         for (unsigned int x = 0; x < size_x; ++x) {
             for (unsigned int y = 0; y < size_y; ++y) {
                 for (unsigned int z = 0; z < size_z; ++z) {
 
                     float cx = (float)x - (float)this->size_x / 2.0f;
-                    float cy = (float)y - (float)this->size_y / 2.0;
-                    float cz = (float)z - (float)this->size_z / 2.0;
+                    float cy = (float)y - (float)this->size_y / 2.0f;
+                    float cz = (float)z - (float)this->size_z / 2.0f;
 
                     float px = cx + 0.8f / 2;
                     float nx = cx - 0.8f / 2;
@@ -178,11 +213,39 @@ namespace CA3D {
                     for (const int i : cube_vertexes) {
                         this->indices->push_back(i + vertex_index);
                     }
+                    
+                    //addCube(this->vertices, this->indices, vertex_index, glm::vec3(cx,cy,cz), glm::vec3(0.8f, 0.8f, 0.8f), colorCube); vertex_index += 8;
 
-                    vertex_index += 8;
+
                 }
             }
         }
+
+        float thickness = 0.1f;
+        float offset_from_main_cubes = 0.5f;
+        glm::vec3 colorBorder(0.0f, 0.0f, 1.0f);
+
+
+
+        glm::vec3 center(-0.5f, -0.5f, -0.5f);
+        glm::vec3 size(this->size_x + offset_from_main_cubes, this->size_y + offset_from_main_cubes, this->size_z + offset_from_main_cubes);
+
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3(              center.x,  size.y / 2 + center.y, -size.z / 2 + center.z), glm::vec3(size.x, thickness, thickness), colorBorder); vertex_index += 8;
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3(              center.x,  size.y / 2 + center.y,  size.z / 2 + center.z), glm::vec3(size.x, thickness, thickness), colorBorder); vertex_index += 8;
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3(-size.x / 2 + center.x,  size.y / 2 + center.y,               center.z), glm::vec3(thickness, thickness, size.z), colorBorder); vertex_index += 8;
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3( size.x / 2 + center.x,  size.y / 2 + center.y,               center.z), glm::vec3(thickness, thickness, size.z), colorBorder); vertex_index += 8;
+
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3(              center.x, -size.y / 2 + center.y, -size.z / 2 + center.z), glm::vec3(size.x, thickness, thickness), colorBorder); vertex_index += 8;
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3(              center.x, -size.y / 2 + center.y,  size.z / 2 + center.z), glm::vec3(size.x, thickness, thickness), colorBorder); vertex_index += 8;
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3(-size.x / 2 + center.x, -size.y / 2 + center.y,               center.z), glm::vec3(thickness, thickness, size.z), colorBorder); vertex_index += 8;
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3( size.x / 2 + center.x, -size.y / 2 + center.y,               center.z), glm::vec3(thickness, thickness, size.z), colorBorder); vertex_index += 8;
+
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3( size.x / 2 + center.x,               center.y,  size.z / 2 + center.z), glm::vec3(thickness, size.y, thickness), colorBorder); vertex_index += 8;
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3(-size.x / 2 + center.x,               center.y, -size.z / 2 + center.z), glm::vec3(thickness, size.y, thickness), colorBorder); vertex_index += 8;
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3 (size.x / 2 + center.x,               center.y, -size.z / 2 + center.z), glm::vec3(thickness, size.y, thickness), colorBorder); vertex_index += 8;
+        addCube(this->vertices, this->indices, vertex_index, glm::vec3(-size.x / 2 + center.x,               center.y,  size.z / 2 + center.z), glm::vec3(thickness, size.y, thickness), colorBorder); vertex_index += 8;
+        //addCube(this->vertices, this->indices, vertex_index, glm::vec3(-(size.x / 2), size.y / 2, 0.0f), glm::vec3(size.x, 0.0f, 0.0f)); vertex_index += 8;
+
 
         this->mesh = new Mesh(this->vertices, this->indices);
     }

@@ -18,6 +18,7 @@
 namespace CA3D {
 
 	std::vector<std::string> split(const std::string& s, char seperator);
+	void addCube(std::vector <Vertex>* vertices, std::vector <GLuint>* indices, int vertex_index, glm::vec3 center, glm::vec3 size, glm::vec3 color);
 
 	class CA3D {
 		public:
