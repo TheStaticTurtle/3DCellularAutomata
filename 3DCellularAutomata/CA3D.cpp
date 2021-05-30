@@ -41,7 +41,15 @@ namespace CA3D {
         return output;
     }
 
-    void addCube(std::vector <Vertex>* vertices, std::vector <GLuint>* indices,int vertex_index, glm::vec3 center, glm::vec3 size, glm::vec3 color) {
+    template <class T>
+    bool vectorContains(std::vector<T> v, T key) {
+        if (std::count(v.begin(), v.end(), key)) {
+            return true;
+        }
+        return false;
+    }
+
+    void addCube(std::vector <Vertex>* vertices, std::vector <Index>* indices,int vertex_index, glm::vec3 center, glm::vec3 size, glm::vec3 color) {
         float px, nx, py, ny, pz, nz;
 
         unsigned int cube_vertexes[] = {
@@ -70,9 +78,58 @@ namespace CA3D {
         vertices->push_back(Vertex{ glm::vec3(nx, ny, pz), color });
         vertices->push_back(Vertex{ glm::vec3(px, ny, pz), color });
 
-        for (const int i : cube_vertexes) {
-            indices->push_back(i + vertex_index);
+        Index idx;
+        for (int i = 0; i < 36; i++) cube_vertexes[i] += vertex_index;
+        memcpy(idx.indices, cube_vertexes, sizeof(cube_vertexes));
+        indices->push_back(idx);
+    }
+
+    unsigned int CA3D::getAdjacentCount(unsigned int x, unsigned int y, unsigned int z) {
+        int count = 0;
+        if (x > this->size_x - 2) x = this->size_x - 2;
+        if (y > this->size_y - 2) y = this->size_y - 2;
+        if (z > this->size_z -21) z = this->size_z - 2;
+        if (x ==0) x = 1;
+        if (y ==0) y = 1;
+        if (z ==0) z = 1;
+
+        if (this->neighborhood_mode == CA3D_NEIGHBORHOOD_NEUMANN) {
+            if (this->map[(x + 1)][(y)][(z)] > 0) count += 1;
+            if (this->map[(x - 1)][(y)][(z)] > 0) count += 1;
+            if (this->map[(x)][(y + 1)][(z)] > 0) count += 1;
+            if (this->map[(x)][(y + 1)][(z)] > 0) count += 1;
+            if (this->map[(x)][(y)][(z + 1)] > 0) count += 1;
+            if (this->map[(x)][(y)][(z + 1)] > 0) count += 1;
         }
+
+        if (this->neighborhood_mode == CA3D_NEIGHBORHOOD_MOORE) {
+            for(int i=-1; i<=1; i++) {
+                //if (y == 0 || y == this->size_y - 1) continue;
+
+                if (this->map[(x + 1)][(y + i)][(z + 1)] > 0) count += 1;
+                if (this->map[(x + 1)][(y + i)][(z)] > 0) count += 1;
+                if (this->map[(x + 1)][(y + i)][(z - 1)] > 0) count += 1;
+                if (this->map[(x + 1)][(y + i)][(z + 1)] > 0) count += 1;
+                if (this->map[(x + 1)][(y + i)][(z)] > 0) count += 1;
+                if (this->map[(x + 1)][(y + i)][(z - 1)] > 0) count += 1;
+
+                if (this->map[(x)][(y + i)][(z + 1)] > 0) count += 1;
+                if (this->map[(x)][(y + i)][(z)] > 0) count += 1;
+                if (this->map[(x)][(y + i)][(z - 1)] > 0) count += 1;
+                if (this->map[(x)][(y + i)][(z + 1)] > 0) count += 1;
+                if (this->map[(x)][(y + i)][(z)] > 0) count += 1;
+                if (this->map[(x)][(y + i)][(z - 1)] > 0) count += 1;
+
+                if (this->map[(x - 1)][(y + i)][(z + 1)] > 0) count += 1;
+                if (this->map[(x - 1)][(y + i)][(z)] > 0) count += 1;
+                if (this->map[(x - 1)][(y + i)][(z - 1)] > 0) count += 1;
+                if (this->map[(x - 1)][(y + i)][(z + 1)] > 0) count += 1;
+                if (this->map[(x - 1)][(y + i)][(z)] > 0) count += 1;
+                if (this->map[(x - 1)][(y + i)][(z - 1)] > 0) count += 1;
+            }
+        }
+
+        return count;
     }
 
     /* ----  Init  -----*/
@@ -163,17 +220,36 @@ namespace CA3D {
         }
     }
 
-    void CA3D::magic()
-    {
+    void CA3D::magic() {
+        for (unsigned int x = 0; x < size_x; ++x) {
+            for (unsigned int y = 0; y < size_y; ++y) {
+                for (unsigned int z = 0; z < size_z; ++z) {
+
+                    unsigned int adj = getAdjacentCount(x, y, z);
+                    bool couldBeBorn = adj == 4; //vectorContains<int>(this->bornIF, adj);
+                    bool shouldDie = adj != 4; //!vectorContains<int>(this->aliveIF, adj);
+
+                    if (this->map[x][y][z] == 0 && couldBeBorn) {
+                        this->map[x][y][z] = this->stateCount - 1;
+                    }
+
+                    if (this->map[x][y][z] >0 && shouldDie) {
+                        this->map[x][y][z] -= 1;
+                    }
+
+                }
+            }
+        }
     }
 
 
     /* ----  Graphics  -----*/
     void CA3D::initMesh() {
         this->vertices = new std::vector <Vertex>();
-        this->indices = new std::vector <GLuint>();
+        this->indices = new std::vector <Index>();
+        this->indicesOriginal = new std::vector <Index>();
 
-        unsigned int cube_vertexes[] = {
+        unsigned int cubes_vertexes[] = {
             0, 1, 3,   0, 2, 3, //Top     face
             4, 6, 7,   4, 5, 7, //Bottom  face
             0, 1, 5,   0, 4, 5, //Rear    face
@@ -182,7 +258,6 @@ namespace CA3D {
             0, 2, 6,   0, 4, 6, //Right   face
         };
 
-        unsigned int vertex_index = 0;
         glm::vec3 colorCube(0.5f, 0.5f, 0.5f);
 
         for (unsigned int x = 0; x < size_x; ++x) {
@@ -210,26 +285,28 @@ namespace CA3D {
                     this->vertices->push_back(Vertex{ glm::vec3(nx, ny, pz), glm::vec3(0.5f, 0.5f, 0.5f) });
                     this->vertices->push_back(Vertex{ glm::vec3(px, ny, pz), glm::vec3(1.0f, 1.0f, 1.0f) });
 
-                    for (const int i : cube_vertexes) {
-                        this->indices->push_back(i + vertex_index);
-                    }
-                    
-                    //addCube(this->vertices, this->indices, vertex_index, glm::vec3(cx,cy,cz), glm::vec3(0.8f, 0.8f, 0.8f), colorCube); vertex_index += 8;
-
+                    Index idx;
+                    Index idx2;
+                    memcpy(idx.indices, cubes_vertexes, sizeof(cubes_vertexes));
+                    memcpy(idx2.indices, cubes_vertexes, sizeof(cubes_vertexes));
+                    for (int i = 0; i < 36; i++) cubes_vertexes[i] += 8;
+                    this->indices->push_back(idx);
+                    this->indicesOriginal->push_back(idx2);
 
                 }
             }
         }
 
-        float thickness = 0.1f;
-        float offset_from_main_cubes = 0.5f;
+        float thickness = 0.2f;
+        float offset_from_main_cubes = 0.75f;
         glm::vec3 colorBorder(0.0f, 0.0f, 1.0f);
-
 
 
         glm::vec3 center(-0.5f, -0.5f, -0.5f);
         glm::vec3 size(this->size_x + offset_from_main_cubes, this->size_y + offset_from_main_cubes, this->size_z + offset_from_main_cubes);
 
+
+        unsigned int vertex_index = cubes_vertexes[0];
         addCube(this->vertices, this->indices, vertex_index, glm::vec3(              center.x,  size.y / 2 + center.y, -size.z / 2 + center.z), glm::vec3(size.x, thickness, thickness), colorBorder); vertex_index += 8;
         addCube(this->vertices, this->indices, vertex_index, glm::vec3(              center.x,  size.y / 2 + center.y,  size.z / 2 + center.z), glm::vec3(size.x, thickness, thickness), colorBorder); vertex_index += 8;
         addCube(this->vertices, this->indices, vertex_index, glm::vec3(-size.x / 2 + center.x,  size.y / 2 + center.y,               center.z), glm::vec3(thickness, thickness, size.z), colorBorder); vertex_index += 8;
@@ -249,9 +326,11 @@ namespace CA3D {
 
         this->mesh = new Mesh(this->vertices, this->indices);
     }
+
     void CA3D::draw(Shader& shader, Camera& camera) {
         unsigned int vertex_index = 0;
         unsigned int indices_index = 0;
+        unsigned int indices_index2 = 0;
 
         unsigned int cube_vertexes[] = {
             0, 1, 3,   0, 2, 3, //Top     face
@@ -262,28 +341,39 @@ namespace CA3D {
             0, 2, 6,   0, 4, 6, //Right   face
         };
 
+        unsigned int cube_vertexes_null[] = {
+            0, 0, 0,   0, 0, 0, //Top     face
+            0, 0, 0,   0, 0, 0, //Bottom  face
+            0, 0, 0,   0, 0, 0, //Rear    face
+            0, 0, 0,   0, 0, 0, //Front   face
+            0, 0, 0,   0, 0, 0, //Left    face
+            0, 0, 0,   0, 0, 0, //Right   face
+        };
+
+        /*unsigned int count = size_x * size_y * size_z;
+        for (unsigned int i = 0; i < count; ++i) {
+            memcpy(this->indices->at(i).indices, this->indicesOriginal->at(i).indices, sizeof(cube_vertexes));
+        }*/
+
         for (unsigned int x = 0; x < size_x; ++x) {
             for (unsigned int y = 0; y < size_y; ++y) {
                 for (unsigned int z = 0; z < size_z; ++z) {
 
                     if (this->map[x][y][z] == 0) {
-                        for (unsigned int i = 0; i < 36; i++) {
-                            this->indices->at(indices_index + i) = -1;
-                        }
+                        memset(this->indices->at(indices_index2).indices, 0, sizeof(cube_vertexes));
                     }
                     else {
-                        for (unsigned int i=0; i < 36; i++) {
-                            this->indices->at(indices_index + i) = vertex_index + cube_vertexes[i];
-                        }
+                        memcpy(this->indices->at(indices_index2).indices, this->indicesOriginal->at(indices_index2).indices, sizeof(cube_vertexes));
                     }
 
                     vertex_index += 8;
                     indices_index += 36;
+                    indices_index2 += 1;
                 }
             }
         }
 
-        mesh->update();
+        mesh->updateIndexes();
         mesh->draw(shader, camera, glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(0.0f, 0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
     }
 }

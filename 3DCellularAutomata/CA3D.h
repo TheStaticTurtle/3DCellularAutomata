@@ -18,7 +18,7 @@
 namespace CA3D {
 
 	std::vector<std::string> split(const std::string& s, char seperator);
-	void addCube(std::vector <Vertex>* vertices, std::vector <GLuint>* indices, int vertex_index, glm::vec3 center, glm::vec3 size, glm::vec3 color);
+	void addCube(std::vector <Vertex>* vertices, std::vector <Index>* indices, int vertex_index, glm::vec3 center, glm::vec3 size, glm::vec3 color);
 
 	class CA3D {
 		public:
@@ -31,6 +31,7 @@ namespace CA3D {
 
 		private:
 			std::vector <int> getIntVectorFromRuleParameter(std::string param);
+			unsigned int getAdjacentCount(unsigned int x, unsigned int y, unsigned int z);
 
 			char neighborhood_mode = CA3D_NEIGHBORHOOD_MOORE;
 			unsigned int size_x = 20;
@@ -45,7 +46,8 @@ namespace CA3D {
 
 			void initMesh();
 			std::vector <Vertex>* vertices;
-			std::vector <GLuint>* indices;
+			std::vector <Index>* indices;
+			std::vector <Index>* indicesOriginal;
 			Mesh* mesh;
 	};
 }

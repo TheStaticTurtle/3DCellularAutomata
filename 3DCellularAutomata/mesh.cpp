@@ -1,6 +1,6 @@
 #include "mesh.h"
 
-Mesh::Mesh(std::vector <Vertex>* vertices, std::vector <GLuint>* indices)
+Mesh::Mesh(std::vector <Vertex>* vertices, std::vector <Index>* indices)
 {
 	this->vertices = vertices;
 	this->indices = indices;
@@ -45,12 +45,16 @@ void Mesh::draw(Shader& shader, Camera& camera, glm::mat4 matrix, glm::vec3 tran
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "scale"), 1, GL_FALSE, glm::value_ptr(sca));
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(matrix));
 
-
+	unsigned int size = this->indices->size() * (sizeof(Index) / sizeof(int));
 	// Draw the actual mesh
-	glDrawElements(GL_TRIANGLES, this->indices->size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, size , GL_UNSIGNED_INT, 0);
 }
 
 void Mesh::update() {
 	this->vbo->updateData(this->vertices);
+	this->ebo->updateData(this->indices);
+}
+
+void Mesh::updateIndexes() {
 	this->ebo->updateData(this->indices);
 }

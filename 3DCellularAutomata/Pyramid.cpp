@@ -2,7 +2,7 @@
 
 Pyramid::Pyramid(glm::vec3 center, glm::vec3 size) {
 	this->vertices = new std::vector <Vertex>();
-	this->indices = new std::vector <GLuint>();
+	this->indices = new std::vector <Index>();
 
 	float px = center.x + size.x / 2;
 	float nx = center.x - size.x / 2;
@@ -34,9 +34,14 @@ Pyramid::Pyramid(glm::vec3 center, glm::vec3 size) {
 	};
 
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
-	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
+
+	Index idx;
+	for (int i = 0; i < 18; i++) {
+		idx.indices[i] = indices[i];
+	}
+
 	this->vertices = &verts;
-	this->indices = &ind;
+	this->indices->push_back(idx);
 
 	this->calculateMesh();
 }

@@ -2,7 +2,7 @@
 
 BaseShape::BaseShape() {
 	this->vertices = new std::vector <Vertex>();
-	this->indices = new std::vector <GLuint>();
+	this->indices = new std::vector <Index>();
 	this->calculateMesh();
 }
 

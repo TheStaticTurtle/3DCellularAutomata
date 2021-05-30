@@ -14,7 +14,7 @@ public:
 
 protected:
 	std::vector <Vertex>* vertices;
-	std::vector <GLuint>* indices;
+	std::vector <Index>* indices;
 	Mesh* mesh;
 };
 
