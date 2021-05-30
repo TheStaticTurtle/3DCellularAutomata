@@ -2,11 +2,16 @@
 
 
 
-Camera::Camera(int width, int height, glm::vec3 position)
+Camera::Camera(int width, int height, glm::vec3 position, float rotX, float rotY)
 {
 	this->width = width;
 	this->height = height;
 	this->position = position;
+	glm::vec3 newOrientation = glm::rotate(this->orientation, glm::radians(-rotX), glm::normalize(glm::cross(this->orientation, this->up)));
+	if (abs(glm::angle(newOrientation, this->up) - glm::radians(90.0f)) <= glm::radians(85.0f)) {
+		this->orientation = newOrientation;
+	}
+	this->orientation = glm::rotate(this->orientation, glm::radians(-rotY), this->up);
 }
 
 void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane, float rotation)
@@ -46,8 +51,8 @@ void Camera::inputs(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)        this->position += this->speed * this->up;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) this->position += this->speed * -this->up;
 	
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)         this->speed = 0.50f;
-	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)  this->speed = 0.15f;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)         this->speed = 2.0f;
+	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)  this->speed = 0.5f;
 	
 	// Handles mouse inputs
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {

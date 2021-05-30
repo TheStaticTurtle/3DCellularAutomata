@@ -49,6 +49,22 @@ namespace CA3D {
         return false;
     }
 
+    static unsigned long x = 123456789, y = 362436069, z = 521288629;
+
+    unsigned long xorshf96(void) {          //period 2^96-1
+        unsigned long t;
+        x ^= x << 16;
+        x ^= x >> 5;
+        x ^= x << 1;
+
+        t = x;
+        x = y;
+        y = z;
+        z = t ^ x ^ y;
+
+        return z;
+    }
+
     void addCube(std::vector <Vertex>* vertices, std::vector <Index>* indices,int vertex_index, glm::vec3 center, glm::vec3 size, glm::vec3 color) {
         float px, nx, py, ny, pz, nz;
 
@@ -84,48 +100,42 @@ namespace CA3D {
         indices->push_back(idx);
     }
 
-    unsigned int CA3D::getAdjacentCount(unsigned int x, unsigned int y, unsigned int z) {
+    /* --Reference
+    int to1D(int x, int y, int z, int xMax, int yMax) {
+        return (z * xMax * yMax) + (y * xMax) + x;
+    }
+
+    int* to3D(int idx, int xMax, int yMax) {
+        int z = idx / (xMax * yMax);
+        idx -= (z * xMax * yMax);
+        int y = idx / xMax;
+        int x = idx % xMax;
+        return new int[3] { x, y, z };
+    }
+    */
+
+    unsigned int CA3D::getAdjacentCount(unsigned int i) {
         int count = 0;
-        if (x > this->size_x - 2) x = this->size_x - 2;
-        if (y > this->size_y - 2) y = this->size_y - 2;
-        if (z > this->size_z -21) z = this->size_z - 2;
-        if (x ==0) x = 1;
-        if (y ==0) y = 1;
-        if (z ==0) z = 1;
+
+        int zi = i / (this->size_x * this->size_y);
+        i -= (zi * this->size_x * this->size_y);
+        int yi = i / this->size_x;
+        int xi = i % this->size_x;
 
         if (this->neighborhood_mode == CA3D_NEIGHBORHOOD_NEUMANN) {
-            if (this->map[(x + 1)][(y)][(z)] > 0) count += 1;
-            if (this->map[(x - 1)][(y)][(z)] > 0) count += 1;
-            if (this->map[(x)][(y + 1)][(z)] > 0) count += 1;
-            if (this->map[(x)][(y + 1)][(z)] > 0) count += 1;
-            if (this->map[(x)][(y)][(z + 1)] > 0) count += 1;
-            if (this->map[(x)][(y)][(z + 1)] > 0) count += 1;
         }
 
         if (this->neighborhood_mode == CA3D_NEIGHBORHOOD_MOORE) {
-            for(int i=-1; i<=1; i++) {
-                //if (y == 0 || y == this->size_y - 1) continue;
+            for (int x = -1; x <= 1; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    for (int z = -1; z <= 1; z++) {
+                        if ((xi + x) < 0 || (xi + x) >= this->size_x) continue;
+                        if ((yi + y) < 0 || (yi + y) >= this->size_y) continue;
+                        if ((zi + z) < 0 || (zi + z) >= this->size_z) continue;
 
-                if (this->map[(x + 1)][(y + i)][(z + 1)] > 0) count += 1;
-                if (this->map[(x + 1)][(y + i)][(z)] > 0) count += 1;
-                if (this->map[(x + 1)][(y + i)][(z - 1)] > 0) count += 1;
-                if (this->map[(x + 1)][(y + i)][(z + 1)] > 0) count += 1;
-                if (this->map[(x + 1)][(y + i)][(z)] > 0) count += 1;
-                if (this->map[(x + 1)][(y + i)][(z - 1)] > 0) count += 1;
-
-                if (this->map[(x)][(y + i)][(z + 1)] > 0) count += 1;
-                if (this->map[(x)][(y + i)][(z)] > 0) count += 1;
-                if (this->map[(x)][(y + i)][(z - 1)] > 0) count += 1;
-                if (this->map[(x)][(y + i)][(z + 1)] > 0) count += 1;
-                if (this->map[(x)][(y + i)][(z)] > 0) count += 1;
-                if (this->map[(x)][(y + i)][(z - 1)] > 0) count += 1;
-
-                if (this->map[(x - 1)][(y + i)][(z + 1)] > 0) count += 1;
-                if (this->map[(x - 1)][(y + i)][(z)] > 0) count += 1;
-                if (this->map[(x - 1)][(y + i)][(z - 1)] > 0) count += 1;
-                if (this->map[(x - 1)][(y + i)][(z + 1)] > 0) count += 1;
-                if (this->map[(x - 1)][(y + i)][(z)] > 0) count += 1;
-                if (this->map[(x - 1)][(y + i)][(z - 1)] > 0) count += 1;
+                        if (this->map[(xi + x) + this->size_x * ((yi + y) + this->size_y * (zi + z))] > 0) count += 1;
+                    }
+                }
             }
         }
 
@@ -137,16 +147,11 @@ namespace CA3D {
         this->size_x = size_x;
         this->size_y = size_y;
         this->size_z = size_z;
+        this->size_i = size_x * size_y * size_z;
 
-        this->map = new int** [size_x];
-        for (unsigned int x = 0; x < size_x; ++x) {
-            this->map[x] = new int* [size_y];
-            for (unsigned int y = 0; y < size_y; ++y) {
-                this->map[x][y] = new int[size_z];
-                for (unsigned int z = 0; z < size_z; ++z) {
-                    this->map[x][y][z] = 0;
-                }
-            }
+        this->map = new int [size_i];
+        for (unsigned int i = 0; i < size_i; ++i) {
+            this->map[i] = 0;
         }
 
         this->initMesh();
@@ -180,65 +185,51 @@ namespace CA3D {
 
     void CA3D::resetMap(int mode) {
         if (mode == CA3D_INIT_MODE_BLANK) {
-            for (unsigned int x = 0; x < this->size_x; ++x)
-                for (unsigned int y = 0; y < this->size_y; ++y)
-                    for (unsigned int z = 0; z < this->size_z; ++z)
-                        this->map[x][y][z] = 0;
+            for (unsigned int i = 0; i < size_i; ++i) this->map[i] = 0;
         }
 
         if (mode == CA3D_INIT_MODE_FULL) {
-            for (unsigned int x = 0; x < this->size_x; ++x)
-                for (unsigned int y = 0; y < this->size_y; ++y)
-                    for (unsigned int z = 0; z < this->size_z; ++z)
-                        this->map[x][y][z] = this->stateCount - 1;
+            for (unsigned int i = 0; i < size_i; ++i) this->map[i] = this->stateCount - 1;
         }
 
         if (mode == CA3D_INIT_MODE_RANDOM) {
-            for (unsigned int x = 0; x < this->size_x; ++x)
-                for (unsigned int y = 0; y < this->size_y; ++y)
-                    for (unsigned int z = 0; z < this->size_z; ++z)
-                        this->map[x][y][z] = (rand() % 100) > 50 ? this->stateCount - 1 : 0;
+            for (unsigned int i = 0; i < size_i; ++i) this->map[i] = (xorshf96() % 2) > 0 ? this->stateCount - 1 : 0;
         }
 
         if (mode == CA3D_INIT_MODE_RANDOM_STATE) {
-            for (unsigned int x = 0; x < this->size_x; ++x)
-                for (unsigned int y = 0; y < this->size_y; ++y)
-                    for (unsigned int z = 0; z < this->size_z; ++z)
-                        this->map[x][y][z] = rand() % this->stateCount;
+            for (unsigned int i = 0; i < size_i; ++i) this->map[i] = xorshf96() % this->stateCount;
         }
 
         if (mode == CA3D_INIT_MODE_CENTER_BLOCK) {
             this->resetMap(CA3D_INIT_MODE_BLANK);
-            unsigned int size = 3;
+            unsigned int size = 1;
             unsigned int xm = this->size_x / 2;
             unsigned int ym = this->size_y / 2;
             unsigned int zm = this->size_z / 2;
             for (unsigned int x = xm - size; x < xm + size; ++x)
                 for (unsigned int y = ym - size; y < ym + size; ++y)
                     for (unsigned int z = zm - size; z < zm + size; ++z)
-                        this->map[x][y][z] = this->stateCount - 1;
+                        this->map[x + this->size_x * (y + this->size_y * z)] = this->stateCount - 1;
         }
     }
 
     void CA3D::magic() {
-        for (unsigned int x = 0; x < size_x; ++x) {
-            for (unsigned int y = 0; y < size_y; ++y) {
-                for (unsigned int z = 0; z < size_z; ++z) {
+        for (unsigned int i = 0; i < size_i; i++) {
+            unsigned int adj = getAdjacentCount(i);
+            //if(adj>0) std::cout << adj << std::endl
+            bool survive = adj == 4;  //vectorContains<int>(this->aliveIF, adj);
+            bool birth = adj == 4; //vectorContains<int>(this->bornIF, adj);
 
-                    unsigned int adj = getAdjacentCount(x, y, z);
-                    bool couldBeBorn = adj == 4; //vectorContains<int>(this->bornIF, adj);
-                    bool shouldDie = adj != 4; //!vectorContains<int>(this->aliveIF, adj);
-
-                    if (this->map[x][y][z] == 0 && couldBeBorn) {
-                        this->map[x][y][z] = this->stateCount - 1;
-                    }
-
-                    if (this->map[x][y][z] >0 && shouldDie) {
-                        this->map[x][y][z] -= 1;
-                    }
-
-                }
+            if (this->map[i] > 0 && !survive) {
+                this->map[i] -= 1;
+                continue;
             }
+
+            if (this->map[i] == 0 && birth) {
+                this->map[i] = this->stateCount - 1;
+                continue;
+            }
+
         }
     }
 
@@ -328,48 +319,11 @@ namespace CA3D {
     }
 
     void CA3D::draw(Shader& shader, Camera& camera) {
-        unsigned int vertex_index = 0;
-        unsigned int indices_index = 0;
-        unsigned int indices_index2 = 0;
-
-        unsigned int cube_vertexes[] = {
-            0, 1, 3,   0, 2, 3, //Top     face
-            4, 6, 7,   4, 5, 7, //Bottom  face
-            0, 1, 5,   0, 4, 5, //Rear    face
-            2, 3, 7,   2, 6, 7, //Front   face
-            1, 5, 7,   1, 3, 7, //Left    face
-            0, 2, 6,   0, 4, 6, //Right   face
-        };
-
-        unsigned int cube_vertexes_null[] = {
-            0, 0, 0,   0, 0, 0, //Top     face
-            0, 0, 0,   0, 0, 0, //Bottom  face
-            0, 0, 0,   0, 0, 0, //Rear    face
-            0, 0, 0,   0, 0, 0, //Front   face
-            0, 0, 0,   0, 0, 0, //Left    face
-            0, 0, 0,   0, 0, 0, //Right   face
-        };
-
-        /*unsigned int count = size_x * size_y * size_z;
-        for (unsigned int i = 0; i < count; ++i) {
-            memcpy(this->indices->at(i).indices, this->indicesOriginal->at(i).indices, sizeof(cube_vertexes));
-        }*/
-
-        for (unsigned int x = 0; x < size_x; ++x) {
-            for (unsigned int y = 0; y < size_y; ++y) {
-                for (unsigned int z = 0; z < size_z; ++z) {
-
-                    if (this->map[x][y][z] == 0) {
-                        memset(this->indices->at(indices_index2).indices, 0, sizeof(cube_vertexes));
-                    }
-                    else {
-                        memcpy(this->indices->at(indices_index2).indices, this->indicesOriginal->at(indices_index2).indices, sizeof(cube_vertexes));
-                    }
-
-                    vertex_index += 8;
-                    indices_index += 36;
-                    indices_index2 += 1;
-                }
+        for (unsigned int i = 0; i < this->size_i; ++i) {
+            if (this->map[i] == 0) {
+                memset(this->indices->at(i).indices, 0, 144);
+            } else {
+                memcpy(this->indices->at(i).indices, this->indicesOriginal->at(i).indices, 144);
             }
         }
 

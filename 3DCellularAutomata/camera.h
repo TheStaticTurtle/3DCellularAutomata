@@ -34,7 +34,7 @@ public:
 	float rotation = 0.0f;
 
 	// Camera constructor to set up initial values
-	Camera(int width, int height, glm::vec3 position);
+	Camera(int width, int height, glm::vec3 position, float rotX, float rotY);
 
 	// Updates the camera matrix to the Vertex Shader
 	void updateMatrix(float FOVdeg, float nearPlane, float farPlane, float rotation);

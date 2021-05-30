@@ -60,12 +60,12 @@ int main() {
 	double prevTime = glfwGetTime();
 	double prevTime2 = glfwGetTime();
 	float rotation = 0.0f;
-	camera = new Camera(width, height, glm::vec3(0.0f, 25.0f, 50.0f));
+	camera = new Camera(width, height, glm::vec3(150.0f, 75.0f, 150.0f), 22.5, -45);
 
 
-	CA3D::CA3D playground(100,100,100);
+	CA3D::CA3D playground(70,70,70);
 	playground.initRule("4/4/5/M");
-	playground.resetMap(CA3D_INIT_MODE_FULL);
+	playground.resetMap(CA3D_INIT_MODE_CENTER_BLOCK);
 
 
 	while (!glfwWindowShouldClose(window))	{
@@ -75,13 +75,13 @@ int main() {
 		double crntTime = glfwGetTime();
 		if (crntTime - prevTime >= 1 / 60) {
 			prevTime = crntTime;
-			rotation += 0.20f;
+			rotation += 0.75f;
 		};
 
 		if (crntTime - prevTime2 >= 1/2) {
 			prevTime2 = crntTime;
-			//playground.magic();
-			playground.resetMap(CA3D_INIT_MODE_RANDOM);
+			playground.magic();
+			//playground.resetMap(CA3D_INIT_MODE_RANDOM);
 		};
 
 		camera->inputs(window);

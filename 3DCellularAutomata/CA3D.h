@@ -31,18 +31,19 @@ namespace CA3D {
 
 		private:
 			std::vector <int> getIntVectorFromRuleParameter(std::string param);
-			unsigned int getAdjacentCount(unsigned int x, unsigned int y, unsigned int z);
+			unsigned int getAdjacentCount(unsigned int i);
 
 			char neighborhood_mode = CA3D_NEIGHBORHOOD_MOORE;
 			unsigned int size_x = 20;
 			unsigned int size_y = 20;
 			unsigned int size_z = 20;
+			unsigned int size_i = 20*20*20;
 
 			std::vector<int> aliveIF{ 4 };
 			std::vector<int> bornIF{ 4 };
 			int stateCount = 5;
 
-			int*** map;
+			int* map;
 
 			void initMesh();
 			std::vector <Vertex>* vertices;
